@@ -1,30 +1,70 @@
 import { Inject, Service } from '@tsed/common';
-import { Logger } from '@tsed/logger';
 import axios from 'axios';
 import { GraphQLError } from 'graphql';
 import { StatusCodes } from 'http-status-codes';
-import { UserAssignment } from '../../model/assignment/assignment';
-import { RBS_AUTH_SCOPE_ROUTE } from '../../model/common/routes';
-import { UserRole } from '../../model/user/role';
-import { ErrorUtils } from '../../utils/error';
-import { LOGGER } from '../../utils/logger';
 import { CONFIG } from '../config/config.provider';
 import { AuthHeaders, AuthScope, UserScope } from './auth.typings';
+
+export const RBS_AUTH_SCOPE_ROUTE = '/oauth/token/auth_scope';
+export interface UserAssignmentLanguage {
+    userAssignmentId: string;
+    itemUuid: string;
+    itemVersion: number;
+    isSelected: boolean;
+    languageLocale: string;
+    isdefault: boolean;
+}
+export interface UserAssignmentData {
+    userAssignmentId: string;
+    createDate?: number;
+    score?: number;
+    correctAnswers: number;
+    totalQuestions?: number;
+    completionStatus: string;
+    totalTime?: number;
+    successStatus: string;
+    scoreSource?: string;
+    scoreSent: boolean;
+    manualScore?: boolean;
+    needsManualScoring?: boolean;
+}
+export interface UserAssignment {
+    assignmentId: string;
+    itemType: string;
+    classUuid: string;
+    studentUuid: string;
+    id: string;
+    lastOpenDate: number;
+    attachmentUrl: string;
+    markCompleted: boolean;
+    autoCompleteEnabled: boolean;
+    autoCompleted: boolean;
+    createdDate: number;
+    userAssignmentStatus: string;
+    attachmentTitle: string;
+    userAssignmentDataList: UserAssignmentData[];
+    userAssignmentLanguageList: UserAssignmentLanguage[];
+    studentGoogleDocAssignmentId: string;
+    deleted: boolean;
+    correctTasks: number;
+    totalTasks: number;
+}
+export enum UserRole {
+    CUSTOMER_ADMIN = 'Customer Admin',
+    TEACHER = 'Teacher',
+    STUDENT = 'Student',
+}
 
 @Service()
 export class RbsAuthService {
     public static readonly tokenTypeBearer = 'Bearer';
 
-    constructor(
-        private readonly errorUtils: ErrorUtils,
-        @Inject(LOGGER) private readonly logger: Logger,
-        @Inject(CONFIG) private readonly config: any
-    ) { }
+    constructor( @Inject(CONFIG) private readonly config: any ) { }
 
     public async validateToken(authHeaders: AuthHeaders): Promise<AuthScope> {
         let userScope;
         try {
-            this.logger.info('RbsAuthService: Inside validateToken');
+            console.log('RbsAuthService: Inside validateToken');
             const { authorization } = authHeaders;
             if (!authorization) {
                 throw new Error('Missing Authorization token');
@@ -57,7 +97,7 @@ export class RbsAuthService {
                 },
             };
         } catch (err) {
-            this.logger.error('Error in getting authScope:', err);
+            console.log('Error in getting authScope:', err);
             return {
                 error: new GraphQLError('UNAUTHORIZED', {
                     extensions: { code: StatusCodes.UNAUTHORIZED },

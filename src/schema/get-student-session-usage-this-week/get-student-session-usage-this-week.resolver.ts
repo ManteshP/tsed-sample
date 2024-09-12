@@ -1,8 +1,14 @@
 import { ResolverController } from '@tsed/typegraphql';
 import { Arg, Authorized, Ctx, Query } from 'type-graphql';
-import { ROLES } from '../../model/common/const';
 import { Context } from '../../model/common/context';
 import { StudentSessionUsageThisWeek } from './get-student-session-usage-this-week.schema';
+
+export enum ROLES {
+    TEACHER = 'Teacher',
+    PEARSON_ADMIN = 'Pearson Admin',
+    CUSTOMER_ADMIN = 'Customer Admin',
+    STUDENT = 'Student'
+}
 
 @ResolverController(StudentSessionUsageThisWeek)
 export class StudentSessionUsageThisWeekResolver {
@@ -25,10 +31,7 @@ export class StudentSessionUsageThisWeekResolver {
             }
             const studentAssignments: StudentSessionUsageThisWeek[] =
                 await ctx.dataSources.studentSessionUsageService
-                    .getStudentSessionUsage(
-                        organizationId,
-                        userId
-                    );
+                    .getStudentSessionUsage();
             return studentAssignments;
         } catch (error) {
             return error;
