@@ -1,6 +1,8 @@
 import { ResolverController } from '@tsed/typegraphql';
+import { StudentSessionUsageService } from 'src/services/students-session-usage-this-week/students-session-usage-this-week.service';
 import { Arg, Authorized, Ctx, Query } from 'type-graphql';
-import { Context } from '../../model/common/context';
+
+import { CustomApolloContext } from '../../model/common/context';
 import { StudentSessionUsageThisWeek } from './get-student-session-usage-this-week.schema';
 
 export enum ROLES {
@@ -20,7 +22,7 @@ export class StudentSessionUsageThisWeekResolver {
     public async getStudentSessionUsageThisWeek(
         @Arg('orgId') organizationId: string,
         @Arg('userId') userId: string,
-        @Ctx() ctx: Context
+        @Ctx() ctx: CustomApolloContext
     ): Promise<StudentSessionUsageThisWeek[]> {
         try {
             if (!organizationId) {
@@ -30,7 +32,7 @@ export class StudentSessionUsageThisWeekResolver {
                 console.log('userId Not Exists');
             }
             const studentAssignments: StudentSessionUsageThisWeek[] =
-                await ctx.dataSources.studentSessionUsageService
+                await (ctx.dataSources.studentSessionUsageService as StudentSessionUsageService)
                     .getStudentSessionUsage();
             return studentAssignments;
         } catch (error) {

@@ -1,20 +1,24 @@
 import { Configuration, Inject, PlatformApplication } from "@tsed/common";
-import "@tsed/platform-express"; // /!\ keep this import
-import "@tsed/ajv";
-import "@tsed/graphql-ws";
-import "@tsed/typegraphql";
-import { GraphQLFormattedError } from 'graphql';
-import { StatusCodes } from 'http-status-codes';
-import { config } from "./config";
-import * as rest from "./controllers/rest/index";
+import bodyParser from "body-parser";
 import compress from 'compression';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import session from 'express-session';
+import { GraphQLFormattedError } from 'graphql';
+import { StatusCodes } from 'http-status-codes';
 import methodOverride from 'method-override';
-import bodyParser from "body-parser";
-import { StudentSessionUsageThisWeekResolver } from "./schema/get-student-session-usage-this-week/get-student-session-usage-this-week.resolver";
+
 import { customAuthChecker } from "./auth-checker/custom-auth.checker";
+import { config } from "./config";
+import * as rest from "./controllers/rest/index";
+import { StudentSessionUsageThisWeekResolver } from "./schema/get-student-session-usage-this-week/get-student-session-usage-this-week.resolver";
+
+import '../src/model/common/context'
+// /!\ keep this import
+import "@tsed/ajv";
+import "@tsed/graphql-ws";
+import "@tsed/platform-express";
+import "@tsed/typegraphql";
 
 const isStackTraceEnabled = process.env.STACK_TRACE_ENABLED === 'true';
 const setHttpPlugin = {

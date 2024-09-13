@@ -1,13 +1,10 @@
+import { AlterApolloContext, ApolloContext } from '@tsed/apollo';
+import { PlatformContext } from '@tsed/common';
+import { Injectable } from '@tsed/di';
 import { Logger } from '@tsed/logger';
-import { UserScope } from '../../services/auth/auth.typings';
-import { StudentSessionUsageService } from '../../services/students-session-usage-this-week/students-session-usage-this-week.service';
+import { UserScope } from 'src/services/auth/auth.typings';
 
-export interface DataSources {
-    studentSessionUsageService: StudentSessionUsageService;
-}
-
-export interface Context {
-    dataSources: DataSources;
+export interface CustomApolloContext extends ApolloContext{
     userScope: UserScope;
     authorization: string;
     logger: Logger;
@@ -15,4 +12,21 @@ export interface Context {
     isAuthenticated: boolean;
     userId: string;
     orgId: string;
+}
+
+@Injectable()
+export class CustomContext implements AlterApolloContext {
+
+  async $alterApolloContext(context: ApolloContext, $ctx: PlatformContext): Promise<CustomApolloContext> {
+    return {
+      ...context,
+      authorization: $ctx.getRequest().headers['authorization'],
+      userId: $ctx.getRequest().headers['user-id'],
+      orgId: $ctx.getRequest().headers['org-id'],
+      isAuthenticated: $ctx.getRequest().headers.isAuthenticated,
+      userScope: $ctx.getRequest().userScope,
+      logger: $ctx.getRequest().logger,
+      error: $ctx.error
+    };
+  }
 }
